@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from utils.file_parser import extract_text_from_file
 
 # -------------------- Page Config --------------------
@@ -41,7 +41,6 @@ languages = {
     "French 🇫🇷": "fr",
     "Swahili 🇰🇪": "sw",
     "Sesotho 🇿🇦": "st",
-
 }
 
 selected_language = st.selectbox("🌐 Translate Explanation To", list(languages.keys()))
@@ -70,10 +69,13 @@ if st.button("🧠 Get Explanation"):
                 # Translate if necessary
                 dest_code = languages[selected_language]
                 if dest_code != "en":
-                    translator = Translator()
-                    translated = translator.translate(reply, dest=dest_code)
-                    st.success(f"✅ Explanation ({selected_language}):")
-                    st.write(translated.text)
+                    try:
+                        translated = GoogleTranslator(source='auto', target=dest_code).translate(reply)
+                        st.success(f"✅ Explanation ({selected_language}):")
+                        st.write(translated)
+                    except Exception as te:
+                        st.warning("⚠️ Translation failed, showing English text instead.")
+                        st.write(reply)
                 else:
                     st.success("✅ Explanation:")
                     st.write(reply)
