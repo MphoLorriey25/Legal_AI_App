@@ -53,13 +53,15 @@ if st.button("🧠 Get Explanation"):
                 extracted_text = extract_text_from_file(file)
                 prompt = f"{extracted_text}\n\n{question or 'Summarize this in plain English.'}"
 
-                # ✅ Securely get API key from Streamlit secrets
+                # 🔍 Debug: Check if API key is loaded from secrets
                 try:
                     api_key = st.secrets["OPENROUTER_API_KEY"]
+                    st.success("✅ API key loaded successfully!")  # Debug message
                 except KeyError:
-                    st.error("⚠️ OpenRouter API key not found in Streamlit secrets.")
+                    st.error("❌ API key not found in Streamlit secrets.")
                     st.stop()
 
+                # Prepare request
                 headers = {
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json"
