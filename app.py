@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import os
 from deep_translator import GoogleTranslator
 from utils.file_parser import extract_text_from_file
 
@@ -54,39 +53,41 @@ if st.button("🧠 Get Explanation"):
                 extracted_text = extract_text_from_file(file)
                 prompt = f"{extracted_text}\n\n{question or 'Summarize this in plain English.'}"
 
-                api_key = os.getenv("OPENROUTER_API_KEY", st.secrets.get("OPENROUTER_API_KEY", ""))
+                # ✅ Securely get API key from Streamlit secrets
+                try:
+                    api_key = st.secrets["OPENROUTER_API_KEY"]
+                except KeyError:
+                    st.error("⚠️ OpenRouter API key not found in Streamlit secrets.")
+                    st.stop()
 
-                if not api_key:
-                    st.error("⚠️ OpenRouter API key not found. Please set OPENROUTER_API_KEY.")
-                else:
-                    headers = {
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json"
-                    }
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
 
-                    payload = {
-                        "model": "openai/gpt-3.5-turbo",
-                        "messages": [{"role": "user", "content": prompt}]
-                    }
+                payload = {
+                    "model": "openai/gpt-3.5-turbo",
+                    "messages": [{"role": "user", "content": prompt}]
+                }
 
-                    res = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-                    data = res.json()
+                res = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+                data = res.json()
 
-                    if 'choices' in data and data['choices']:
-                        reply = data['choices'][0]['message']['content']
+                if 'choices' in data and data['choices']:
+                    reply = data['choices'][0]['message']['content']
 
-                        # Translate if needed
-                        dest_code = languages[selected_language]
-                        if dest_code != "en":
-                            translated = GoogleTranslator(source='auto', target=dest_code).translate(reply)
-                            st.success(f"✅ Explanation ({selected_language}):")
-                            st.write(translated)
-                        else:
-                            st.success("✅ Explanation:")
-                            st.write(reply)
+                    # Translate if needed
+                    dest_code = languages[selected_language]
+                    if dest_code != "en":
+                        translated = GoogleTranslator(source='auto', target=dest_code).translate(reply)
+                        st.success(f"✅ Explanation ({selected_language}):")
+                        st.write(translated)
                     else:
-                        st.error("⚠️ Unexpected API response.")
-                        st.code(data)
+                        st.success("✅ Explanation:")
+                        st.write(reply)
+                else:
+                    st.error("⚠️ Unexpected API response.")
+                    st.code(data)
 
             except Exception as e:
                 st.error("⚠️ Something went wrong.")
