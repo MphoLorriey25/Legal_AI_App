@@ -29,6 +29,10 @@ Whether you're a student, entrepreneur, tenant, or small business owner, LegalEa
 7. Check the FAQ section for tips.
 
 ---
+## Contact details
+📧 [lorrieym@gmail.com](mailto:lorrieym@gmail.com)  
+📞 [076 355 3963](tel:+27763553963)
+
 
 
 
